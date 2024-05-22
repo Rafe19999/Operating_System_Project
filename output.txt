@@ -1,0 +1,28 @@
+Processes after scheduling:
+Process ID | Arrival Time | Burst Time | Completion Time | Waiting Time | Turnaround Time
+          1 |             0 |         10 |               10 |             0 |               10
+          2 |             2 |          5 |               15 |             8 |               13
+          3 |             5 |          8 |               23 |            10 |               18
+Average Waiting Time: 6.00
+Average Turnaround Time: 13.67
+Processes after scheduling:
+Process ID | Arrival Time | Burst Time | Completion Time | Waiting Time | Turnaround Time
+          1 |             0 |         10 |               10 |             0 |               10
+          2 |             2 |          5 |               15 |            10 |               13
+          3 |             5 |          8 |               23 |            15 |               18
+Average Waiting Time: 8.33
+Average Turnaround Time: 13.67
+Processes after scheduling:
+Process ID | Arrival Time | Burst Time | Completion Time | Waiting Time | Turnaround Time
+          1 |             0 |         10 |               23 |            13 |               23
+          2 |             2 |          5 |               14 |             7 |               12
+          3 |             5 |          8 |               22 |             9 |               17
+Average Waiting Time: 9.67
+Average Turnaround Time: 17.33
+Processes after scheduling:
+Process ID | Arrival Time | Burst Time | Completion Time | Waiting Time | Turnaround Time
+          3 |             5 |          8 |                8 |             0 |                8
+          2 |             2 |          5 |               13 |             8 |               13
+          1 |             0 |         10 |               23 |            13 |               23
+Average Waiting Time: 7.00
+Average Turnaround Time: 14.67

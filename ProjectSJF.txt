@@ -1,0 +1,183 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+typedef struct {
+    int process_id;
+    int arrival_time;
+    int burst_time;
+    int remaining_time;
+    int priority;
+} Process;
+
+void displayProcesses(Process processes[], int n) {
+    printf("Process ID | Arrival Time | Burst Time | Priority\n");
+    for (int i = 0; i < n; i++) {
+        printf("%11d | %13d | %10d | %8d\n", processes[i].process_id, processes[i].arrival_time, processes[i].burst_time, processes[i].priority);
+    }
+    printf("\n");
+}
+
+void calculateWaitingTime(Process processes[], int n, int waiting_time[]) {
+    waiting_time[0] = 0;
+
+    for (int i = 1; i < n; i++) {
+        waiting_time[i] = processes[i - 1].burst_time + waiting_time[i - 1];
+    }
+}
+
+void calculateTurnaroundTime(Process processes[], int n, int waiting_time[], int turnaround_time[]) {
+    for (int i = 0; i < n; i++) {
+        turnaround_time[i] = processes[i].burst_time + waiting_time[i];
+    }
+}
+
+float calculateAverageTime(int time[], int n) {
+    float total_time = 0;
+    for (int i = 0; i < n; i++) {
+        total_time += time[i];
+    }
+    return total_time / n;
+}
+
+void fcfsScheduling(Process processes[], int n) {
+    int completion_time[n], waiting_time[n], turnaround_time[n];
+
+    completion_time[0] = processes[0].burst_time;
+    for (int i = 1; i < n; i++) {
+        completion_time[i] = completion_time[i - 1] + processes[i].burst_time;
+    }
+
+    for (int i = 0; i < n; i++) {
+        waiting_time[i] = completion_time[i] - processes[i].burst_time - processes[i].arrival_time;
+    }
+
+    for (int i = 0; i < n; i++) {
+        turnaround_time[i] = completion_time[i] - processes[i].arrival_time;
+    }
+
+    // Display results
+    printf("Processes after FCFS Scheduling:\n");
+    printf("Process ID | Arrival Time | Burst Time | Completion Time | Waiting Time | Turnaround Time\n");
+    for (int i = 0; i < n; i++) {
+        printf("%11d | %13d | %10d | %16d | %13d | %16d\n",
+               processes[i].process_id, processes[i].arrival_time, processes[i].burst_time,
+               completion_time[i], waiting_time[i], turnaround_time[i]);
+    }
+
+    printf("Average Waiting Time: %.2f\n", calculateAverageTime(waiting_time, n));
+    printf("Average Turnaround Time: %.2f\n", calculateAverageTime(turnaround_time, n));
+}
+
+void sjfScheduling(Process processes[], int n) {
+    // Sort processes based on arrival time and burst time
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (processes[j].arrival_time > processes[j + 1].arrival_time ||
+                (processes[j].arrival_time == processes[j + 1].arrival_time &&
+                 processes[j].burst_time > processes[j + 1].burst_time)) {
+                Process temp = processes[j];
+                processes[j] = processes[j + 1];
+                processes[j + 1] = temp;
+            }
+        }
+    }
+
+    int currentTime = 0;
+    int completion_time[n];
+    int waiting_time[n];
+    int turnaround_time[n];
+
+    printf("Processes after SJF Scheduling:\n");
+    printf("Process ID | Arrival Time | Burst Time | Completion Time | Waiting Time | Turnaround Time\n");
+
+    for (int i = 0; i < n; i++) {
+        completion_time[i] = currentTime + processes[i].burst_time;
+        waiting_time[i] = currentTime - processes[i].arrival_time;
+        turnaround_time[i] = completion_time[i] - processes[i].arrival_time;
+
+        printf("%11d | %13d | %10d | %16d | %13d | %16d\n",
+               processes[i].process_id, processes[i].arrival_time, processes[i].burst_time,
+               completion_time[i], waiting_time[i], turnaround_time[i]);
+
+        currentTime = completion_time[i];
+    }
+
+    printf("Average Waiting Time: %.2f\n", calculateAverageTime(waiting_time, n));
+    printf("Average Turnaround Time: %.2f\n", calculateAverageTime(turnaround_time, n));
+}
+
+void readProcessFromFile(char filename[], Process originalProcesses[], int *n) {
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        perror("Error opening file");
+        exit(EXIT_FAILURE);
+    }
+
+    fscanf(file, "%d", n);
+
+    for (int i = 0; i < *n; i++) {
+        fscanf(file, "%d %d %d %d", &originalProcesses[i].process_id, &originalProcesses[i].arrival_time, &originalProcesses[i].burst_time, &originalProcesses[i].priority);
+        originalProcesses[i].remaining_time = originalProcesses[i].burst_time;
+    }
+
+    fclose(file);
+}
+
+void displayProcessesBeforeScheduling(char filename[]) {
+    int n;
+    Process originalProcesses[100];
+    readProcessFromFile(filename, originalProcesses, &n);
+
+    printf("Processes before Scheduling:\n");
+    displayProcesses(originalProcesses, n);
+}
+
+int main() {
+    int n, choice;
+    char filename[100];
+    Process originalProcesses[100];
+
+    while (1) {
+        printf("Enter the process file name (or 0 to exit): ");
+        scanf("%s", filename);
+
+        if (filename[0] == '0') {
+            exit(0);
+        }
+
+        readProcessFromFile(filename, originalProcesses, &n);
+
+        while (1) {
+            system("cls");
+            printf("Choose a scheduling algorithm:\n");
+            printf("1. First Come First Serve (FCFS)\n");
+            printf("2. Shortest Job First (SJF)\n");
+            printf("0. Exit\n\n");
+
+            printf("Enter your choice: ");
+            scanf("%d", &choice);
+
+            switch (choice) {
+                case 0:
+                    exit(0);
+                case 1:
+                    displayProcessesBeforeScheduling(filename);
+                    fcfsScheduling(originalProcesses, n);
+                    break;
+                case 2:
+                    displayProcessesBeforeScheduling(filename);
+                    sjfScheduling(originalProcesses, n);
+                    break;
+                default:
+                    printf("Invalid choice\n");
+                    break;
+            }
+
+            printf("Press Any Key To Continue...");
+            getch();
+        }
+    }
+
+    return 0;
+}
